@@ -1,33 +1,39 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import './App.css';
+import { GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
+import app from './firebase/firebase.config';
+import { useState } from 'react';
+
+const auth = getAuth(app);
+const googleProvider = new GoogleAuthProvider();
 
 function App() {
-  const [count, setCount] = useState(0)
+
+  const [user, setUser] = useState(null);
+
+  const handleGoogleSignIn = () => {
+    signInWithPopup(auth, googleProvider)
+      .then(result => {
+        const loggedInUser = result.user;
+        console.log(loggedInUser);
+        setUser(loggedInUser);
+      })
+      .catch(error => {
+        console.log('error: ', error);
+      });
+  };
 
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <h1>Firebase + React</h1>
+      <button onClick={handleGoogleSignIn}>Sign In</button>
+      {
+        user && 
+        <div>
+            <h1>{user.displayName}</h1>
+            <p>{user.email}</p>
+            <img src={user.photoURL} alt="" />
+        </div>
+      }
     </>
   )
 }
